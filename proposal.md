@@ -10,9 +10,13 @@ Recreate Tetris - the retro game.
 - A scoring system
 - Rows to disappear once full
 - Image of block coming up next
+- Background Music
 
 ## Nice to Have List
 - Hold block
 - Access held block
 - Pause screen with restart option
 - Preview of how the block will look once placed in current state
+- Sound effects
+- 2 player mode (side by side)
+- store high scores somewhere
