@@ -24,7 +24,7 @@ function draw() {
   background(0);
   drawGrid();
   tetris.fillBoard();
-  tetris.moveBlockDown();
+  tetris.callMoveBlockDown();
 }
 
 function createEmptyBoard() {
@@ -57,11 +57,18 @@ class Tetris {
   }
 
   createBlock() {
-    this.block = createEmptyBoard();
-  
-    this.block[0][0] = 1;
-    this.block[1][0] = 1;
-    this.block[2][0] = 1;  
+    this.whichBlock = 1;
+    if (this.whichBlock === 1) {
+      this.block = createEmptyBoard();
+    
+      this.block[0][0] = 1;
+      this.block[1][0] = 1;
+      this.block[2][0] = 1;  
+    }
+
+    else if (this.whichBlock === 2) {
+      return;
+    }
   }
 
   fillBoard() {
@@ -76,13 +83,16 @@ class Tetris {
     }
   }
 
-  moveBlockDown() {
-    for (let i = 0; i < 17; i++) { 
-      this.block[i][0] = 0;
-      this.block[i + 1][0] = 1;
-      this.block[i + 2][0] = 1;
-      this.block[i + 3][0] = 1;
+  moveBlockDown(i) {
+    this.block[i][0] = 0;
+    this.block[i + 1][0] = 1;
+    this.block[i + 2][0] = 1;
+    this.block[i + 3][0] = 1;
+  }
+
+  callMoveBlockDown(current) {
+    for (this.i = 0; this.i < 17; this.i++) {
+      this.moveBlockDown(this.i);
     }
   }
 }
-
