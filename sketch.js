@@ -57,7 +57,7 @@ class Tetris {
   }
 
   createBlock() {
-    this.whichBlock = 6;
+    this.whichBlock = 7;
 
     if (this.whichBlock === 1) {
       this.block[0][0] = 1;
@@ -96,6 +96,13 @@ class Tetris {
       this.block[0][1] = 1;
       this.block[1][1] = 1;
       this.block[2][1] = 1;
+    }
+
+    else if (this.whichBlock === 7) {
+      this.block[0][1] = 1;
+      this.block[1][0] = 1;
+      this.block[1][1] = 1;
+      this.block[1][2] = 1;
     }
   }
 
@@ -171,11 +178,27 @@ class Tetris {
       this.block[i][2] = 0;
       this.block[i+1][2] = 1;
     }
+    else if (this.whichBlock === 7) {
+      this.block[i][1] = 0;
+      this.block[i+1][1] = 1;
+      this.block[i+2][1] = 1;
+
+      this.block[i+1][0] = 0;
+      this.block[i+2][0] = 1;
+      this.block[i+1][2] = 0;
+      this.block[i+2][2] = 1;
+    }
   }
 
   callMoveBlockDown(current) {
     for (this.i = 0; this.i < 15; this.i++) {
       this.moveBlockDown(this.i);
     }
+  }
+}
+
+class Block {
+  constructor() {
+    this.whichBlock;
   }
 }
