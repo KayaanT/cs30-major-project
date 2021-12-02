@@ -7,7 +7,8 @@
 
 let board;
 let cellSize;
-let tetris, newBlock;
+let tetris; 
+// let newBlock;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -17,8 +18,9 @@ function setup() {
   console.log(board);
 
   tetris = new Tetris();
+  tetris.spawnNewBlock();
 
-  newBlock = new Block();
+  // newBlock = new Block();
 }
 
 function draw() { 
@@ -51,20 +53,24 @@ function drawGrid() {
 
 function keyPressed() {
   if (keyCode === DOWN_ARROW) {
-    newBlock.callMoveBlockDown();
+    tetris.newBlock.callMoveBlockDown();
   }
 }
 
 class Tetris {
   constructor() {
-    this.BlockGrid = createEmptyBoard();
+    this.masterGrid = createEmptyBoard();
+  }
+
+  spawnNewBlock() {
+    this.newBlock = new Block();
   }
 
   fillBoard() {
     let buffer = width/2 - 10*cellSize/2;
-    for (let y = 0; y < this.BlockGrid.length; y++) {
-      for (let x = 0; x < this.BlockGrid[y].length; x++) {
-        if (this.BlockGrid[y][x] === 1) {
+    for (let y = 0; y < this.masterGrid.length; y++) {
+      for (let x = 0; x < this.masterGrid[y].length; x++) {
+        if (this.masterGrid[y][x] === 1 || this.newBlock.currentBlockGrid[y][x]) {
           fill("red");
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
         }
@@ -72,132 +78,131 @@ class Tetris {
     }
   }
 
-
-
 }
 
 class Block {
   constructor() {
-    // this.whichBlock = random([1,2,3,4,5,6,7]);
-    this.whichBlock = 7;
+    this.whichBlock = random([1,2,3,4,5,6,7]);
+    // this.whichBlock = 7;
     this.currentRow = 0;
+    this.currentBlockGrid = createEmptyBoard();
 
     if (this.whichBlock === 1) { // i block
-      tetris.BlockGrid[0][0] = 1;
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[2][0] = 1; 
+      this.currentBlockGrid[0][0] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[2][0] = 1; 
     }
   
     else if (this.whichBlock === 2) { // o block
-      tetris.BlockGrid[0][0] = 1;
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[1][1] = 1; 
-      tetris.BlockGrid[0][1] = 1; 
+      this.currentBlockGrid[0][0] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[1][1] = 1; 
+      this.currentBlockGrid[0][1] = 1; 
       
     }
   
     else if (this.whichBlock === 3) { // j block
-      tetris.BlockGrid[0][0] = 1;
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[1][1] = 1;
-      tetris.BlockGrid[1][2] = 1;
+      this.currentBlockGrid[0][0] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[1][1] = 1;
+      this.currentBlockGrid[1][2] = 1;
     }
     else if (this.whichBlock === 4) { // l block
-      tetris.BlockGrid[0][2] = 1;
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[1][1] = 1;
-      tetris.BlockGrid[1][2] = 1;
+      this.currentBlockGrid[0][2] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[1][1] = 1;
+      this.currentBlockGrid[1][2] = 1;
     }
     else if (this.whichBlock === 5) { // z block
-      tetris.BlockGrid[0][0] = 1;
-      tetris.BlockGrid[0][1] = 1;
-      tetris.BlockGrid[1][1] = 1;
-      tetris.BlockGrid[1][2] = 1;
+      this.currentBlockGrid[0][0] = 1;
+      this.currentBlockGrid[0][1] = 1;
+      this.currentBlockGrid[1][1] = 1;
+      this.currentBlockGrid[1][2] = 1;
     }
     else if (this.whichBlock === 6) { // s block 
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[0][1] = 1;
-      tetris.BlockGrid[1][1] = 1;
-      tetris.BlockGrid[0][2] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[0][1] = 1;
+      this.currentBlockGrid[1][1] = 1;
+      this.currentBlockGrid[0][2] = 1;
     }
   
     else if (this.whichBlock === 7) { // t block
-      tetris.BlockGrid[0][1] = 1;
-      tetris.BlockGrid[1][0] = 1;
-      tetris.BlockGrid[1][1] = 1;
-      tetris.BlockGrid[1][2] = 1;
+      this.currentBlockGrid[0][1] = 1;
+      this.currentBlockGrid[1][0] = 1;
+      this.currentBlockGrid[1][1] = 1;
+      this.currentBlockGrid[1][2] = 1;
     }
   }
 
   moveBlockDown(i) {
     if (this.whichBlock === 1) {
-      tetris.BlockGrid[i][0] = 0;
-      tetris.BlockGrid[i + 1][0] = 1;
-      tetris.BlockGrid[i + 2][0] = 1;
-      tetris.BlockGrid[i + 3][0] = 1;
+      this.currentBlockGrid[i][0] = 0;
+      this.currentBlockGrid[i + 1][0] = 1;
+      this.currentBlockGrid[i + 2][0] = 1;
+      this.currentBlockGrid[i + 3][0] = 1;
     }
     else if (this.whichBlock === 2) {
-      tetris.BlockGrid[i][0] = 0;
-      tetris.BlockGrid[i+1][0] = 1;
-      tetris.BlockGrid[i+2][0] = 1;
+      this.currentBlockGrid[i][0] = 0;
+      this.currentBlockGrid[i+1][0] = 1;
+      this.currentBlockGrid[i+2][0] = 1;
 
-      tetris.BlockGrid[i][1] = 0;
-      tetris.BlockGrid[i+1][1] = 1;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i][1] = 0;
+      this.currentBlockGrid[i+1][1] = 1;
+      this.currentBlockGrid[i+2][1] = 1;
     }
     else if (this.whichBlock === 3) {
-      tetris.BlockGrid[i][0] = 0;
-      tetris.BlockGrid[i+1][0] = 1;
-      tetris.BlockGrid[i+2][0] = 1;
+      this.currentBlockGrid[i][0] = 0;
+      this.currentBlockGrid[i+1][0] = 1;
+      this.currentBlockGrid[i+2][0] = 1;
 
-      tetris.BlockGrid[i+1][1] = 0;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i+1][1] = 0;
+      this.currentBlockGrid[i+2][1] = 1;
 
-      tetris.BlockGrid[i+1][2] = 0;
-      tetris.BlockGrid[i+2][2] = 1;
+      this.currentBlockGrid[i+1][2] = 0;
+      this.currentBlockGrid[i+2][2] = 1;
     }
     else if (this.whichBlock === 4) {
-      tetris.BlockGrid[i][2] = 0;
-      tetris.BlockGrid[i+1][2] = 1;
-      tetris.BlockGrid[i+2][2] = 1;
+      this.currentBlockGrid[i][2] = 0;
+      this.currentBlockGrid[i+1][2] = 1;
+      this.currentBlockGrid[i+2][2] = 1;
 
-      tetris.BlockGrid[i+1][0] = 0;
-      tetris.BlockGrid[i+2][0] = 1;
+      this.currentBlockGrid[i+1][0] = 0;
+      this.currentBlockGrid[i+2][0] = 1;
 
-      tetris.BlockGrid[i+1][1] = 0;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i+1][1] = 0;
+      this.currentBlockGrid[i+2][1] = 1;
     }
     else if (this.whichBlock === 5) {
-      tetris.BlockGrid[i][0] = 0;
-      tetris.BlockGrid[i+1][0] = 1;
+      this.currentBlockGrid[i][0] = 0;
+      this.currentBlockGrid[i+1][0] = 1;
 
-      tetris.BlockGrid[i][1] = 0;
-      tetris.BlockGrid[i+1][1] = 1;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i][1] = 0;
+      this.currentBlockGrid[i+1][1] = 1;
+      this.currentBlockGrid[i+2][1] = 1;
 
-      tetris.BlockGrid[i+1][2] = 0;
-      tetris.BlockGrid[i+2][2] = 1;
+      this.currentBlockGrid[i+1][2] = 0;
+      this.currentBlockGrid[i+2][2] = 1;
     }
     else if (this.whichBlock === 6) {
-      tetris.BlockGrid[i+1][0] = 0;
-      tetris.BlockGrid[i+2][0] = 1;
+      this.currentBlockGrid[i+1][0] = 0;
+      this.currentBlockGrid[i+2][0] = 1;
 
-      tetris.BlockGrid[i][1] = 0;
-      tetris.BlockGrid[i+1][1] = 1;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i][1] = 0;
+      this.currentBlockGrid[i+1][1] = 1;
+      this.currentBlockGrid[i+2][1] = 1;
 
-      tetris.BlockGrid[i][2] = 0;
-      tetris.BlockGrid[i+1][2] = 1;
+      this.currentBlockGrid[i][2] = 0;
+      this.currentBlockGrid[i+1][2] = 1;
     }
     else if (this.whichBlock === 7) {
-      tetris.BlockGrid[i][1] = 0;
-      tetris.BlockGrid[i+1][1] = 1;
-      tetris.BlockGrid[i+2][1] = 1;
+      this.currentBlockGrid[i][1] = 0;
+      this.currentBlockGrid[i+1][1] = 1;
+      this.currentBlockGrid[i+2][1] = 1;
 
-      tetris.BlockGrid[i+1][0] = 0;
-      tetris.BlockGrid[i+2][0] = 1;
-      tetris.BlockGrid[i+1][2] = 0;
-      tetris.BlockGrid[i+2][2] = 1;
+      this.currentBlockGrid[i+1][0] = 0;
+      this.currentBlockGrid[i+2][0] = 1;
+      this.currentBlockGrid[i+1][2] = 0;
+      this.currentBlockGrid[i+2][2] = 1;
     }
   }
 
@@ -210,8 +215,24 @@ class Block {
   }
 
   moveLeftAndRight() {
-    // if (keyIsDown(RIGHT_ARROW)) {
-    //   tetris.BlockGrid;
-    // }
+    if (keyIsDown(RIGHT_ARROW)) {
+      // tetris.BlockGrid;
+    }
+  }
+
+  rotateBlock() {
+
+  }
+
+  addToRealGrid() {
+    for (let y = 0; y < tetris.masterGrid.length; y++) {
+      for (let x = 0; x < tetris.masterGrid[y].length; x++) {
+        if (this.currentBlockGrid[y][x] === 1) {
+          tetris.masterGrid[y][x] = 1;
+        }
+      }
+    }
+
+    tetris.spawnNewBlock();
   }
 }
