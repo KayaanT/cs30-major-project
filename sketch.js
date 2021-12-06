@@ -55,6 +55,9 @@ function keyPressed() {
   if (keyCode === DOWN_ARROW) {
     tetris.newBlock.callMoveBlockDown();
   }
+  if (keyCode === 32) {
+    tetris.newBlock.addToRealGrid();
+  }
 }
 
 class Tetris {
@@ -136,73 +139,108 @@ class Block {
 
   moveBlockDown(i) {
     if (this.whichBlock === 1) {
-      this.currentBlockGrid[i][0] = 0;
-      this.currentBlockGrid[i + 1][0] = 1;
-      this.currentBlockGrid[i + 2][0] = 1;
-      this.currentBlockGrid[i + 3][0] = 1;
+      if (i+3 < tetris.masterGrid.length && tetris.masterGrid[i + 3][0] === 0 ) {
+        this.currentBlockGrid[i][0] = 0;
+        this.currentBlockGrid[i + 1][0] = 1;
+        this.currentBlockGrid[i + 2][0] = 1;
+        this.currentBlockGrid[i + 3][0] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 2) {
-      this.currentBlockGrid[i][0] = 0;
-      this.currentBlockGrid[i+1][0] = 1;
-      this.currentBlockGrid[i+2][0] = 1;
-
-      this.currentBlockGrid[i][1] = 0;
-      this.currentBlockGrid[i+1][1] = 1;
-      this.currentBlockGrid[i+2][1] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0) {   
+        this.currentBlockGrid[i][0] = 0;
+        this.currentBlockGrid[i+1][0] = 1;
+        this.currentBlockGrid[i+2][0] = 1;
+  
+        this.currentBlockGrid[i][1] = 0;
+        this.currentBlockGrid[i+1][1] = 1;
+        this.currentBlockGrid[i+2][1] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 3) {
-      this.currentBlockGrid[i][0] = 0;
-      this.currentBlockGrid[i+1][0] = 1;
-      this.currentBlockGrid[i+2][0] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
+        this.currentBlockGrid[i][0] = 0;
+        this.currentBlockGrid[i+1][0] = 1;
+        this.currentBlockGrid[i+2][0] = 1;
 
-      this.currentBlockGrid[i+1][1] = 0;
-      this.currentBlockGrid[i+2][1] = 1;
+        this.currentBlockGrid[i+1][1] = 0;
+        this.currentBlockGrid[i+2][1] = 1;
 
-      this.currentBlockGrid[i+1][2] = 0;
-      this.currentBlockGrid[i+2][2] = 1;
+        this.currentBlockGrid[i+1][2] = 0;
+        this.currentBlockGrid[i+2][2] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 4) {
-      this.currentBlockGrid[i][2] = 0;
-      this.currentBlockGrid[i+1][2] = 1;
-      this.currentBlockGrid[i+2][2] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
+        this.currentBlockGrid[i][2] = 0;
+        this.currentBlockGrid[i+1][2] = 1;
+        this.currentBlockGrid[i+2][2] = 1;
 
-      this.currentBlockGrid[i+1][0] = 0;
-      this.currentBlockGrid[i+2][0] = 1;
+        this.currentBlockGrid[i+1][0] = 0;
+        this.currentBlockGrid[i+2][0] = 1;
 
-      this.currentBlockGrid[i+1][1] = 0;
-      this.currentBlockGrid[i+2][1] = 1;
+        this.currentBlockGrid[i+1][1] = 0;
+        this.currentBlockGrid[i+2][1] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 5) {
-      this.currentBlockGrid[i][0] = 0;
-      this.currentBlockGrid[i+1][0] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+1][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
+        this.currentBlockGrid[i][0] = 0;
+        this.currentBlockGrid[i+1][0] = 1;
 
-      this.currentBlockGrid[i][1] = 0;
-      this.currentBlockGrid[i+1][1] = 1;
-      this.currentBlockGrid[i+2][1] = 1;
+        this.currentBlockGrid[i][1] = 0;
+        this.currentBlockGrid[i+1][1] = 1;
+        this.currentBlockGrid[i+2][1] = 1;
 
-      this.currentBlockGrid[i+1][2] = 0;
-      this.currentBlockGrid[i+2][2] = 1;
+        this.currentBlockGrid[i+1][2] = 0;
+        this.currentBlockGrid[i+2][2] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 6) {
-      this.currentBlockGrid[i+1][0] = 0;
-      this.currentBlockGrid[i+2][0] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+1][2] === 0) {   
+        this.currentBlockGrid[i+1][0] = 0;
+        this.currentBlockGrid[i+2][0] = 1;
 
-      this.currentBlockGrid[i][1] = 0;
-      this.currentBlockGrid[i+1][1] = 1;
-      this.currentBlockGrid[i+2][1] = 1;
+        this.currentBlockGrid[i][1] = 0;
+        this.currentBlockGrid[i+1][1] = 1;
+        this.currentBlockGrid[i+2][1] = 1;
 
-      this.currentBlockGrid[i][2] = 0;
-      this.currentBlockGrid[i+1][2] = 1;
+        this.currentBlockGrid[i][2] = 0;
+        this.currentBlockGrid[i+1][2] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
     else if (this.whichBlock === 7) {
-      this.currentBlockGrid[i][1] = 0;
-      this.currentBlockGrid[i+1][1] = 1;
-      this.currentBlockGrid[i+2][1] = 1;
+      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
+        this.currentBlockGrid[i][1] = 0;
+        this.currentBlockGrid[i+1][1] = 1;
+        this.currentBlockGrid[i+2][1] = 1;
 
-      this.currentBlockGrid[i+1][0] = 0;
-      this.currentBlockGrid[i+2][0] = 1;
-      this.currentBlockGrid[i+1][2] = 0;
-      this.currentBlockGrid[i+2][2] = 1;
+        this.currentBlockGrid[i+1][0] = 0;
+        this.currentBlockGrid[i+2][0] = 1;
+        this.currentBlockGrid[i+1][2] = 0;
+        this.currentBlockGrid[i+2][2] = 1;
+      }
+      else {
+        this.addToRealGrid();
+      }
     }
   }
 
@@ -214,14 +252,17 @@ class Block {
     this.currentRow++;
   }
 
-  moveLeftAndRight() {
-    if (keyIsDown(RIGHT_ARROW)) {
-      // tetris.BlockGrid;
-    }
+  moveLeftAndRight(direction) {
+    // if (direction === "right") {
+      
+    // }
+    // else if (direction === "left") {
+
+    // }
   }
 
   rotateBlock() {
-
+    
   }
 
   addToRealGrid() {
