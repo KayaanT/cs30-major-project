@@ -58,6 +58,9 @@ function keyPressed() {
   if (keyCode === 32) {
     tetris.newBlock.addToRealGrid();
   }
+  if (keyCode === RIGHT_ARROW) {
+    tetris.newBlock.moveLeftAndRight();
+  }
 }
 
 class Tetris {
@@ -95,7 +98,6 @@ class Block {
       this.currentBlockGrid[1][0] = 1;
       this.currentBlockGrid[2][0] = 1; 
     }
-  
     else if (this.whichBlock === 2) { // o block
       this.currentBlockGrid[0][0] = 1;
       this.currentBlockGrid[1][0] = 1;
@@ -103,7 +105,6 @@ class Block {
       this.currentBlockGrid[0][1] = 1; 
       
     }
-  
     else if (this.whichBlock === 3) { // j block
       this.currentBlockGrid[0][0] = 1;
       this.currentBlockGrid[1][0] = 1;
@@ -128,7 +129,6 @@ class Block {
       this.currentBlockGrid[1][1] = 1;
       this.currentBlockGrid[0][2] = 1;
     }
-  
     else if (this.whichBlock === 7) { // t block
       this.currentBlockGrid[0][1] = 1;
       this.currentBlockGrid[1][0] = 1;
