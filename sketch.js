@@ -135,6 +135,8 @@ class Block {
       this.currentBlockGrid[1][1] = 1;
       this.currentBlockGrid[1][2] = 1;
     }
+    setInterval(this.callMoveBlockDown, 1000);
+
   }
 
   moveBlockDown(i) {
