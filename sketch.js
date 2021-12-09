@@ -8,6 +8,7 @@
 let board;
 let cellSize;
 let tetris; 
+
 // let newBlock;
 
 function setup() {
@@ -18,7 +19,7 @@ function setup() {
   console.log(board);
 
   tetris = new Tetris();
-  tetris.spawnNewBlock();
+  // tetris.spawnNewBlock();
 
   // newBlock = new Block();
 }
@@ -66,6 +67,8 @@ function keyPressed() {
 class Tetris {
   constructor() {
     this.masterGrid = createEmptyBoard();
+    this.spawnNewBlock();
+    // setInterval(this.newBlock.moveBlockDown, 1000);
   }
 
   spawnNewBlock() {
@@ -83,7 +86,6 @@ class Tetris {
       }
     }
   }
-
 }
 
 class Block {
@@ -135,7 +137,7 @@ class Block {
       this.currentBlockGrid[1][1] = 1;
       this.currentBlockGrid[1][2] = 1;
     }
-    setInterval(this.callMoveBlockDown, 1000);
+    // setInterval(this.callMoveBlockDown, 1000);
 
   }
 
@@ -247,9 +249,6 @@ class Block {
   }
 
   callMoveBlockDown() {
-    // for (this.i = 0; this.i < 1; this.i++) {
-    //   this.moveBlockDown(this.i);
-    // }
     this.moveBlockDown(this.currentRow);
     this.currentRow++;
   }
@@ -275,7 +274,6 @@ class Block {
         }
       }
     }
-
     tetris.spawnNewBlock();
   }
 }
