@@ -260,6 +260,18 @@ class Block {
     // else if (direction === "left") {
 
     // }
+    for (let y = 0; y < tetris.masterGrid.length; y++) {
+      for (let y = 0; y < tetris.masterGrid.length; y++) {
+        if (this.currentBlockGrid[y][tetris.masterGrid[y].length-1] !== 0) {
+          return;
+        }
+      }
+
+      if (this.currentBlockGrid[y][tetris.masterGrid[y].length-1] === 0) {
+        this.currentBlockGrid[y].pop();
+        this.currentBlockGrid[y].unshift(0);
+      }
+    }
   }
 
   rotateBlock() {
