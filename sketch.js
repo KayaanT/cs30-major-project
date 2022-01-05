@@ -1,36 +1,41 @@
-// Tetris 
-// Your Name
-// Date
-//
-// Extra for Experts:
-// - describe what you did to take this project "above and beyond"
-
 let board;
 let cellSize;
 let tetris; 
+let buffer; 
 
-// let newBlock;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   cellSize = height/20;
+  buffer = width/2 - 10*cellSize/2; 
   
-  board = createEmptyBoard();
-  console.log(board);
-
+  // create empty grid to display and a new tetris game
+  board = createEmptyGrid();
   tetris = new Tetris();
-  // tetris.spawnNewBlock();
-
-  // newBlock = new Block();
 }
 
-function draw() { 
+function draw() {
   background(0);
   drawGrid();
   tetris.fillBoard();
+  tetris.newBlock.fillGrid();
 }
 
-function createEmptyBoard() {
+function keyPressed() {
+  if (keyCode === DOWN_ARROW) {
+    tetris.newBlock.moveDown();
+  }
+
+  else if (keyCode === RIGHT_ARROW) {
+    tetris.newBlock.moveRight();
+  }
+
+  else if (keyCode === LEFT_ARROW) {
+    tetris.newBlock.moveLeft();
+  }
+}
+
+function createEmptyGrid() {
   let board = [];
   for (let i = 0; i < 20; i++) {
     board.push([]);
@@ -42,7 +47,7 @@ function createEmptyBoard() {
 }
 
 function drawGrid() {
-  let buffer = width/2 - 10*cellSize/2;
+  // draw the game board
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
       noFill();
@@ -52,23 +57,10 @@ function drawGrid() {
   }
 }
 
-function keyPressed() {
-  if (keyCode === DOWN_ARROW) {
-    tetris.newBlock.callMoveBlockDown();
-  }
-  if (keyCode === 32) {
-    tetris.newBlock.addToRealGrid();
-  }
-  if (keyCode === RIGHT_ARROW) {
-    tetris.newBlock.moveLeftAndRight();
-  }
-}
-
 class Tetris {
   constructor() {
-    this.masterGrid = createEmptyBoard();
+    this.masterGrid = createEmptyGrid();
     this.spawnNewBlock();
-    // setInterval(this.newBlock.moveBlockDown, 1000);
   }
 
   spawnNewBlock() {
@@ -76,11 +68,12 @@ class Tetris {
   }
 
   fillBoard() {
-    let buffer = width/2 - 10*cellSize/2;
+    let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
-        if (this.masterGrid[y][x] === 1 || this.newBlock.currentBlockGrid[y][x]) {
-          fill("red");
+        if (this.masterGrid[y][x] > 0 || this.newBlock.currentBlockGrid[y][x] > 0) {
+          // fill with the color the current block is supposed to be
+          fill(colors[this.newBlock.currentBlockGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
         }
       }
@@ -90,222 +83,98 @@ class Tetris {
 
 class Block {
   constructor() {
-    this.whichBlock = random([1,2,3,4,5,6,7]);
-    this.currentRow = 0;
-    this.currentBlockGrid = createEmptyBoard();
+    this.block1 = [
+      [1, 1, 1, 1]
+    ];
+    this.block2 = [
+      [2, 0, 0],
+      [2, 2, 2],
+    ];
+    this.block3 = [
+      [0, 0, 3],
+      [3, 3, 3]
+    ];
+    this.block4 = [
+      [4, 4],
+      [4, 4]
+    ];    
+    this.block5 = [
+      [0, 5, 5],
+      [5, 5, 0]
+    ];    
+    this.block6 = [
+      [0, 6, 0],
+      [6, 6, 6] 
+    ];    
+    this.block7 = [
+      [7, 7, 0],
+      [0, 7, 7]
+    ];
 
-    if (this.whichBlock === 1) { // i block
-      this.currentBlockGrid[0][4] = 1;
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[2][4] = 1; 
-    }
-    else if (this.whichBlock === 2) { // o block
-      this.currentBlockGrid[0][4] = 1;
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[1][5] = 1; 
-      this.currentBlockGrid[0][5] = 1; 
-      
-    }
-    else if (this.whichBlock === 3) { // j block
-      this.currentBlockGrid[0][4] = 1;
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[1][5] = 1;
-      this.currentBlockGrid[1][6] = 1;
-    }
-    else if (this.whichBlock === 4) { // l block
-      this.currentBlockGrid[0][6] = 1;
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[1][5] = 1;
-      this.currentBlockGrid[1][6] = 1;
-    }
-    else if (this.whichBlock === 5) { // z block
-      this.currentBlockGrid[0][4] = 1;
-      this.currentBlockGrid[0][5] = 1;
-      this.currentBlockGrid[1][5] = 1;
-      this.currentBlockGrid[1][6] = 1;
-    }
-    else if (this.whichBlock === 6) { // s block 
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[0][5] = 1;
-      this.currentBlockGrid[1][5] = 1;
-      this.currentBlockGrid[0][6] = 1;
-    }
-    else if (this.whichBlock === 7) { // t block
-      this.currentBlockGrid[0][5] = 1;
-      this.currentBlockGrid[1][4] = 1;
-      this.currentBlockGrid[1][5] = 1;
-      this.currentBlockGrid[1][6] = 1;
-    }
-    // setInterval(this.callMoveBlockDown, 1000);
+    this.x = 3;
+    this.y = 0;
+    this.currentBlock = random([this.block1, this.block2, this.block3, this.block4, this.block5, this.block6, this.block7]);
+    // this.currentBlock = this.block1;
 
+    this.currentBlockGrid = createEmptyGrid();
   }
 
-  moveBlockDown(i, x) {
-    if (this.whichBlock === 1) {
-      if (i+3 < tetris.masterGrid.length && tetris.masterGrid[i + 3][0] === 0 ) {
-        // this.currentBlockGrid[i][x] = 0;
-        // this.currentBlockGrid[i + 1][x] = 1;
-        // this.currentBlockGrid[i + 2][x] = 1;
-        // this.currentBlockGrid[i + 3][x] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 2) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0) {   
-        // this.currentBlockGrid[i][x] = 0;
-        // this.currentBlockGrid[i+1][x] = 1;
-        // this.currentBlockGrid[i+2][x] = 1;
-  
-        // this.currentBlockGrid[i][x+1] = 0;
-        // this.currentBlockGrid[i+1][x+1] = 1;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 3) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
-        // this.currentBlockGrid[i][x] = 0;
-        // this.currentBlockGrid[i+1][x] = 1;
-        // this.currentBlockGrid[i+2][x] = 1;
-
-        // this.currentBlockGrid[i+1][x+1] = 0;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-
-        // this.currentBlockGrid[i+1][x+2] = 0;
-        // this.currentBlockGrid[i+2][x+2] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 4) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
-        // this.currentBlockGrid[i][x+2] = 0;
-        // this.currentBlockGrid[i+1][x+2] = 1;
-        // this.currentBlockGrid[i+2][x+2] = 1;
-
-        // this.currentBlockGrid[i+1][x] = 0;
-        // this.currentBlockGrid[i+2][x] = 1;
-
-        // this.currentBlockGrid[i+1][x+1] = 0;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 5) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+1][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
-        // this.currentBlockGrid[i][x] = 0;
-        // this.currentBlockGrid[i+1][x] = 1;
-
-        // this.currentBlockGrid[i][x+1] = 0;
-        // this.currentBlockGrid[i+1][x+1] = 1;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-
-        // this.currentBlockGrid[i+1][x+2] = 0;
-        // this.currentBlockGrid[i+2][x+2] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 6) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+1][2] === 0) {   
-        // this.currentBlockGrid[i+1][x] = 0;
-        // this.currentBlockGrid[i+2][x] = 1;
-
-        // this.currentBlockGrid[i][x+1] = 0;
-        // this.currentBlockGrid[i+1][x+1] = 1;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-
-        // this.currentBlockGrid[i][x+2] = 0;
-        // this.currentBlockGrid[i+1][x+2] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
-      }
-    }
-    else if (this.whichBlock === 7) {
-      if (i + 2 < tetris.masterGrid.length && tetris.masterGrid[i+2][0] === 0 && tetris.masterGrid[i+2][1] === 0 && tetris.masterGrid[i+2][2] === 0) {   
-        // this.currentBlockGrid[i][x+1] = 0;
-        // this.currentBlockGrid[i+1][x+1] = 1;
-        // this.currentBlockGrid[i+2][x+1] = 1;
-
-        // this.currentBlockGrid[i+1][x] = 0;
-        // this.currentBlockGrid[i+2][x] = 1;
-        // this.currentBlockGrid[i+1][x+2] = 0;
-        // this.currentBlockGrid[i+2][x+2] = 1;
-        this.currentBlockGrid.pop();
-        this.currentBlockGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      }
-      else {
-        this.addToRealGrid();
+  fillGrid() {
+    for (let j = 0; j < this.currentBlock.length; j++) {
+      for (let i = 0; i < this.currentBlock[j].length; i++) {
+        this.currentBlockGrid[this.y+j][this.x+i] = this.currentBlock[j][i];
+        console.log();
       }
     }
   }
 
-  callMoveBlockDown() {
-    this.leftMostX;
-    for (let i = 0; i < this.currentBlockGrid[this.currentRow].length; i++) {
-      if (this.currentBlockGrid[this.currentRow][i] === 1) {
-        this.leftMostX = i;
+  // NEED TO ADD INSANITY CHECKS FOR ALL OF THESE
+  moveDown() {
+    if (this.checkVerticalCollision()) {
+      return;
+    }
+    for (let i = 0; i < this.currentBlock[0].length; i++) {
+      this.currentBlockGrid[this.y][this.x+i] = 0;
+    }
+    this.y++;
+  }
+
+  moveRight() {
+    if (this.checkRightCollision()) {
+      return;
+    }
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      this.currentBlockGrid[this.y+i][this.x] = 0;
+    }
+    this.x++;
+  }
+
+  moveLeft() {
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      this.currentBlockGrid[this.y+i][this.x+this.currentBlock[i].length-1] = 0;
+    }
+    this.x--;
+  }
+
+  checkVerticalCollision() {
+    // check if out of bounds
+    if (this.y + this.currentBlock.length >= 20) {
+      return true;
+    }
+
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      for (let j = 0; j < this.currentBlock[i].length; j++) {
+        this.currentBlockGrid[this.y+i][this.x+j] = 0;
       }
     }
-    this.moveBlockDown(this.currentRow, this.leftMostX);
-    this.currentRow++;
+
+    return false;
   }
 
-  moveLeftAndRight(direction) {
-    // if (direction === "right") { 
-      
-    // }
-    // else if (direction === "left") {
-
-    // }
-    for (let y = 0; y < tetris.masterGrid.length; y++) {
-      for (let y = 0; y < tetris.masterGrid.length; y++) {
-        if (this.currentBlockGrid[y][tetris.masterGrid[y].length-1] !== 0) {
-          // return;
-        }
-      }
-
-      if (this.currentBlockGrid[y][tetris.masterGrid[y].length-1] === 0) {
-        this.currentBlockGrid[y].pop();
-        this.currentBlockGrid[y].unshift(0);
-      }
+  checkRightCollision() {
+    if (this.x + this.currentBlock[0].length >= 10) {
+      return true;
     }
+    return false;
   }
-
-  rotateBlock() {
-    
-  }
-
-  addToRealGrid() {
-    for (let y = 0; y < tetris.masterGrid.length; y++) {
-      for (let x = 0; x < tetris.masterGrid[y].length; x++) {
-        if (this.currentBlockGrid[y][x] === 1) {
-          tetris.masterGrid[y][x] = 1;
-        }
-      }
-    }
-    tetris.spawnNewBlock();
-  }
-}   
+}
