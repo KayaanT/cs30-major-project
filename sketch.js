@@ -2,7 +2,35 @@ let board;
 let cellSize;
 let tetris; 
 let buffer; 
+let waitTime = 0;
 
+let block1 = [
+  [1, 1, 1, 1]
+];
+let block2 = [
+  [2, 0, 0],
+  [2, 2, 2],
+];
+let block3 = [
+  [0, 0, 3],
+  [3, 3, 3]
+];
+let block4 = [
+  [4, 4],
+  [4, 4]
+];    
+let block5 = [
+  [0, 5, 5],
+  [5, 5, 0]
+];    
+let block6 = [
+  [0, 6, 0],
+  [6, 6, 6] 
+];    
+let block7 = [
+  [7, 7, 0],
+  [0, 7, 7]
+];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -19,6 +47,11 @@ function draw() {
   drawGrid();
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
+  tetris.autoMoveBlock();
+
+  if (tetris.newBlock.checkBlockPlaced()) {
+    tetris.newBlock.addToMaster();
+  }
 }
 
 function keyPressed() {
@@ -32,6 +65,10 @@ function keyPressed() {
 
   else if (keyCode === LEFT_ARROW) {
     tetris.newBlock.moveLeft();
+  }
+
+  else if (keyCode === ENTER) {
+    tetris.newBlock.addToMaster();
   }
 }
 
@@ -71,49 +108,34 @@ class Tetris {
     let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
-        if (this.masterGrid[y][x] > 0 || this.newBlock.currentBlockGrid[y][x] > 0) {
+        if (this.newBlock.currentBlockGrid[y][x] > 0) {
           // fill with the color the current block is supposed to be
           fill(colors[this.newBlock.currentBlockGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
         }
+        else if (this.masterGrid[y][x] > 0) {
+          fill(colors[this.masterGrid[y][x]-1]);
+          rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
+        }
       }
+
+    }
+  }
+
+  autoMoveBlock() {
+    if (millis() > waitTime + 750) {
+      waitTime = millis();
+      this.newBlock.moveDown();
     }
   }
 }
 
 class Block {
   constructor() {
-    this.block1 = [
-      [1, 1, 1, 1]
-    ];
-    this.block2 = [
-      [2, 0, 0],
-      [2, 2, 2],
-    ];
-    this.block3 = [
-      [0, 0, 3],
-      [3, 3, 3]
-    ];
-    this.block4 = [
-      [4, 4],
-      [4, 4]
-    ];    
-    this.block5 = [
-      [0, 5, 5],
-      [5, 5, 0]
-    ];    
-    this.block6 = [
-      [0, 6, 0],
-      [6, 6, 6] 
-    ];    
-    this.block7 = [
-      [7, 7, 0],
-      [0, 7, 7]
-    ];
 
     this.x = 3;
     this.y = 0;
-    this.currentBlock = random([this.block1, this.block2, this.block3, this.block4, this.block5, this.block6, this.block7]);
+    this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
     // this.currentBlock = this.block1;
 
     this.currentBlockGrid = createEmptyGrid();
@@ -150,6 +172,9 @@ class Block {
   }
 
   moveLeft() {
+    if (this.checkLeftCollision()) {
+      return;
+    }
     for (let i = 0; i < this.currentBlock.length; i++) {
       this.currentBlockGrid[this.y+i][this.x+this.currentBlock[i].length-1] = 0;
     }
@@ -176,5 +201,29 @@ class Block {
       return true;
     }
     return false;
+  }
+
+  checkLeftCollision() {
+    if (this.x <= 0) {
+      return true;
+    }
+    return false;
+  }
+
+  addToMaster() {
+    for (let i = 0; i < this.currentBlockGrid.length; i++) {
+      for (let j = 0; j < this.currentBlockGrid[i].length; j++) {
+        if (this.currentBlockGrid[i][j] > 0) {
+          tetris.masterGrid[i][j] = this.currentBlockGrid[i][j];
+        }
+      }
+    }
+    tetris.spawnNewBlock();
+  }
+  
+  checkBlockPlaced() {
+    if (this.y + this.currentBlock.length >= 20) {
+      return true;
+    }
   }
 }
