@@ -68,6 +68,7 @@ function keyPressed() {
   }
 
   else if (keyCode === ENTER) {
+    // tetris.newBlock.moveAllTheWayDown();
     tetris.newBlock.addToMaster();
   }
 }
@@ -150,9 +151,8 @@ class Block {
     }
   }
 
-  // NEED TO ADD INSANITY CHECKS FOR ALL OF THESE
   moveDown() {
-    if (this.checkVerticalCollision()) {
+    if (this.checkBlockPlaced()) {
       return;
     }
     for (let i = 0; i < this.currentBlock[0].length; i++) {
@@ -181,21 +181,6 @@ class Block {
     this.x--;
   }
 
-  checkVerticalCollision() {
-    // check if out of bounds
-    if (this.y + this.currentBlock.length >= 20) {
-      return true;
-    }
-
-    for (let i = 0; i < this.currentBlock.length; i++) {
-      for (let j = 0; j < this.currentBlock[i].length; j++) {
-        this.currentBlockGrid[this.y+i][this.x+j] = 0;
-      }
-    }
-
-    return false;
-  }
-
   checkRightCollision() {
     if (this.x + this.currentBlock[0].length >= 10) {
       return true;
@@ -222,8 +207,17 @@ class Block {
   }
   
   checkBlockPlaced() {
-    if (this.y + this.currentBlock.length >= 20) {
-      return true;
+    // checks if block is at bottom of the grid
+    for (let i=0; i < this.currentBlockGrid[19].length; i++) {
+      if (this.currentBlockGrid[19][i] > 0) {
+        return true;
+      }
     }
   }
+
+  // moveAllTheWayDown() {
+  //   while (!this.checkBlockPlaced) {
+  //     this.moveDown();
+  //   }
+  // }
 }
