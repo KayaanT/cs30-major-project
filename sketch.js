@@ -47,10 +47,12 @@ function draw() {
   drawGrid();
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
-  tetris.autoMoveBlock();
 
-  if (tetris.newBlock.checkBlockPlaced()) {
+  if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
+  }
+  else {
+    tetris.autoMoveBlock();
   }
 }
 
@@ -67,9 +69,9 @@ function keyPressed() {
     tetris.newBlock.moveLeft();
   }
 
-  else if (keyCode === ENTER) {
-    // tetris.newBlock.moveAllTheWayDown();
-    tetris.newBlock.addToMaster();
+  else if (keyCode === 32) {
+    tetris.newBlock.hardDrop();
+    // tetris.newBlock.addToMaster();
   }
 }
 
@@ -152,33 +154,31 @@ class Block {
   }
 
   moveDown() {
-    if (this.checkBlockPlaced()) {
-      return;
+    if (!this.checkBlockPlaced()) {
+      // return;
+      for (let i = 0; i < this.currentBlock[0].length; i++) {
+        this.currentBlockGrid[this.y][this.x+i] = 0;
+      }
+      this.y++;
     }
-    for (let i = 0; i < this.currentBlock[0].length; i++) {
-      this.currentBlockGrid[this.y][this.x+i] = 0;
-    }
-    this.y++;
   }
 
   moveRight() {
-    if (this.checkRightCollision()) {
-      return;
+    if (!this.checkRightCollision()) {
+      for (let i = 0; i < this.currentBlock.length; i++) {
+        this.currentBlockGrid[this.y+i][this.x] = 0;
+      }
+      this.x++;
     }
-    for (let i = 0; i < this.currentBlock.length; i++) {
-      this.currentBlockGrid[this.y+i][this.x] = 0;
-    }
-    this.x++;
   }
 
   moveLeft() {
-    if (this.checkLeftCollision()) {
-      return;
+    if (!this.checkLeftCollision()) {
+      for (let i = 0; i < this.currentBlock.length; i++) {
+        this.currentBlockGrid[this.y+i][this.x+this.currentBlock[i].length-1] = 0;
+      }
+      this.x--;
     }
-    for (let i = 0; i < this.currentBlock.length; i++) {
-      this.currentBlockGrid[this.y+i][this.x+this.currentBlock[i].length-1] = 0;
-    }
-    this.x--;
   }
 
   checkRightCollision() {
@@ -192,7 +192,7 @@ class Block {
     if (this.x <= 0) {
       return true;
     }
-    return false;
+    return false; 
   }
 
   addToMaster() {
@@ -210,14 +210,28 @@ class Block {
     // checks if block is at bottom of the grid
     for (let i=0; i < this.currentBlockGrid[19].length; i++) {
       if (this.currentBlockGrid[19][i] > 0) {
+        // if (millis() > waitTime + 500) {
         return true;
+        // }
       }
     }
   }
 
-  // moveAllTheWayDown() {
-  //   while (!this.checkBlockPlaced) {
-  //     this.moveDown();
-  //   }
-  // }
+  checkVerticalCollision() {
+    // return;
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      for (let j = 0; j < this.currentBlock[i].length; j++) {
+        if (tetris.masterGrid[this.y+i+1][this.x+j] > 0 && this.currentBlock[i][j] > 0) {
+          return true;
+        }
+      }      
+    }
+    return false;
+  }
+
+  hardDrop() {
+    while (this.y + this.currentBlock.length <= 19 && !this.checkBlockPlaced() && !this.checkVerticalCollision()) {
+      this.moveDown();
+    }
+  }
 }
