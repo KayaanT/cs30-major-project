@@ -47,6 +47,7 @@ function draw() {
   drawGrid();
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
+  tetris.clearRowIfDone();
 
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
@@ -133,6 +134,17 @@ class Tetris {
     if (millis() > waitTime + 750) {
       waitTime = millis();
       this.newBlock.moveDown();
+    }
+  }
+
+  clearRowIfDone() {
+    for (let i = this.masterGrid.length - 1; i > 0; i--) {
+      // for (let j = 0; j < this.masterGrid[i].length; j++) {}
+      if (!this.masterGrid[i].includes(0)) {
+        console.log("true");
+        this.masterGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); 
+        this.masterGrid.pop();
+      }
     }
   }
 }
