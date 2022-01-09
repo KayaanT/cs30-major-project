@@ -185,12 +185,26 @@ class Block {
     if (this.x + this.currentBlock[0].length >= 10) {
       return true;
     }
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      for (let j = this.currentBlock[i].length; j > 0; j--) {
+        if (this.currentBlock[i][j] > 0 && tetris.masterGrid[this.y + i][this.x+j+1] > 0) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
   checkLeftCollision() {
     if (this.x <= 0) {
       return true;
+    }
+    for (let i = 0; i < this.currentBlock.length; i++) {
+      for (let j = 0; j < this.currentBlock[i].length; j++) {
+        if (this.currentBlock[i][j] > 0 && tetris.masterGrid[this.y+i][this.x+j-1] > 0) {
+          return true;
+        }
+      }
     }
     return false; 
   }
