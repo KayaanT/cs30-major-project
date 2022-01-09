@@ -73,6 +73,10 @@ function keyPressed() {
     tetris.newBlock.hardDrop();
     // tetris.newBlock.addToMaster();
   }
+
+  else if (keyCode === UP_ARROW) {
+    tetris.newBlock.rotateBlock();
+  }
 }
 
 function createEmptyGrid() {
@@ -143,6 +147,39 @@ class Block {
 
     this.currentBlockGrid = createEmptyGrid();
   }
+
+  rotateBlock() {
+    if (this.currentBlock.length === 2 && this.currentBlock[0].length === 3) {
+      this.currentBlock = [
+        [this.currentBlock[1][0], this.currentBlock[0][0]],
+        [this.currentBlock[1][1], this.currentBlock[0][1]],
+        [this.currentBlock[1][2], this.currentBlock[0][2]],
+      ];
+    }
+
+    else if (this.currentBlock.length === 1) {
+      this.currentBlock = [[1], [1], [1], [1]];
+    }
+
+    else if (this.currentBlock.length === 3 && this.currentBlock[0].length === 2) {
+      this.currentBlock = [
+        [this.currentBlock[2][0], this.currentBlock[1][0], this.currentBlock[0][0]],
+        [this.currentBlock[2][1], this.currentBlock[1][1], this.currentBlock[0][1]]
+      ];
+    }
+
+    else if (this.currentBlock.length === 4) {
+      this.currentBlock = block1;
+    }
+
+    // else {
+    //   this.currentBlock = this.currentBlock;
+    // }
+
+    this.currentBlockGrid = createEmptyGrid();
+    // this.currentBlock = this.currentBlock;
+  }
+
 
   fillGrid() {
     for (let j = 0; j < this.currentBlock.length; j++) {
