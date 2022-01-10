@@ -96,10 +96,18 @@ function drawGrid() {
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
       noFill();
-      stroke("white");
+      // strokeWeight(0.05);
+      // stroke("grey");
       rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
     }
   }
+  stroke("white");
+  // strokeWeight(1);
+
+  line(buffer, 0, buffer, height);
+  line(width - buffer, 0, width - buffer, height);
+  line(buffer, 0, width-buffer, 0);
+  line(buffer, height, width-buffer, height);
 }
 
 class Tetris {
@@ -113,6 +121,7 @@ class Tetris {
   }
 
   fillBoard() {
+    // noStroke();
     let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
@@ -142,8 +151,13 @@ class Tetris {
       // for (let j = 0; j < this.masterGrid[i].length; j++) {}
       if (!this.masterGrid[i].includes(0)) {
         console.log("true");
-        this.masterGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); 
-        this.masterGrid.pop();
+        this.newGrid = this.masterGrid;
+        this.newGrid.splice(i, 1);
+        this.newGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        // this.masterGrid[i] = this.masterGrid.splice(i,1);  
+        // this.masterGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        // this.masterGrid.pop();
+        this.masterGrid = this.newGrid;
       }
     }
   }
@@ -184,12 +198,7 @@ class Block {
       this.currentBlock = block1;
     }
 
-    // else {
-    //   this.currentBlock = this.currentBlock;
-    // }
-
     this.currentBlockGrid = createEmptyGrid();
-    // this.currentBlock = this.currentBlock;
   }
 
 
