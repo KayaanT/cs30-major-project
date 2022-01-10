@@ -3,6 +3,7 @@ let cellSize;
 let tetris; 
 let buffer; 
 let waitTime = 0;
+let score;
 
 let block1 = [
   [1, 1, 1, 1]
@@ -40,17 +41,21 @@ function setup() {
   // create empty grid to display and a new tetris game
   board = createEmptyGrid();
   tetris = new Tetris();
+  score = 0;
 }
 
 function draw() {
   background(0);
   drawGrid();
+  writeScore();
+
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
-  tetris.clearRowIfDone();
+  // tetris.clearRowIfDone();
 
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
+    tetris.clearRowIfDone();
   }
   else {
     tetris.autoMoveBlock();
@@ -110,10 +115,20 @@ function drawGrid() {
   line(buffer, height, width-buffer, height);
 }
 
+function writeScore() {
+  fill("white");
+  textSize(height/25);
+
+  text("Score: " + score, width-buffer + width/25, height/10);
+  text("Rows Cleared: " + tetris.totalRowsCleared, width-buffer + width/25, height/6);
+  text("Level: " + tetris.calculateLevel(), width-buffer + width/25, height/4.5);
+}
+
 class Tetris {
   constructor() {
     this.masterGrid = createEmptyGrid();
     this.spawnNewBlock();
+    this.totalRowsCleared = 0;
   }
 
   spawnNewBlock() {
@@ -146,11 +161,16 @@ class Tetris {
     }
   }
 
+  calculateLevel() {
+    return Math.floor(this.totalRowsCleared/10);
+  }
+
   clearRowIfDone() {
-    for (let i = this.masterGrid.length - 1; i > 0; i--) {
+    this.rowsClearedThisRun = 0;
+    for (let i = 0; i < this.masterGrid.length; i++) {
       // for (let j = 0; j < this.masterGrid[i].length; j++) {}
       if (!this.masterGrid[i].includes(0)) {
-        console.log("true");
+        
         this.newGrid = this.masterGrid;
         this.newGrid.splice(i, 1);
         this.newGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -158,7 +178,22 @@ class Tetris {
         // this.masterGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         // this.masterGrid.pop();
         this.masterGrid = this.newGrid;
+        this.rowsClearedThisRun++;
+        this.totalRowsCleared++;
+
       }
+    }
+    if (this.rowsClearedThisRun === 1) {
+      score += 40 * (this.calculateLevel() + 1);
+    }
+    else if (this.rowsClearedThisRun === 2) {
+      score += 100 * (this.calculateLevel() + 1);
+    }
+    else if (this.rowsClearedThisRun === 3) {
+      score += 300 * (this.calculateLevel() + 1);
+    }
+    else if (this.rowsClearedThisRun === 4) {
+      score += 1200 * (this.calculateLevel() + 1);
     }
   }
 }
@@ -168,8 +203,8 @@ class Block {
 
     this.x = 3;
     this.y = 0;
-    this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
-    // this.currentBlock = this.block1;
+    // this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
+    this.currentBlock = block1;
 
     this.currentBlockGrid = createEmptyGrid();
   }
