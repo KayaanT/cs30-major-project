@@ -121,7 +121,7 @@ function writeScore() {
 
   text("Score: " + score, width-buffer + width/25, height/10);
   text("Rows Cleared: " + tetris.totalRowsCleared, width-buffer + width/25, height/6);
-  text("Level: " + tetris.calculateLevel(), width-buffer + width/25, height/4.5);
+  text("Multiplier Level: " + tetris.calculateLevel(), width-buffer + width/25, height/4.5);
 }
 
 class Tetris {
@@ -173,10 +173,7 @@ class Tetris {
         
         this.newGrid = this.masterGrid;
         this.newGrid.splice(i, 1);
-        this.newGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        // this.masterGrid[i] = this.masterGrid.splice(i,1);  
-        // this.masterGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        // this.masterGrid.pop();
+        this.newGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         this.masterGrid = this.newGrid;
         this.rowsClearedThisRun++;
         this.totalRowsCleared++;
@@ -184,16 +181,16 @@ class Tetris {
       }
     }
     if (this.rowsClearedThisRun === 1) {
-      score += 40 * (this.calculateLevel() + 1);
-    }
-    else if (this.rowsClearedThisRun === 2) {
       score += 100 * (this.calculateLevel() + 1);
     }
-    else if (this.rowsClearedThisRun === 3) {
+    else if (this.rowsClearedThisRun === 2) {
       score += 300 * (this.calculateLevel() + 1);
     }
+    else if (this.rowsClearedThisRun === 3) {
+      score += 500 * (this.calculateLevel() + 1);
+    }
     else if (this.rowsClearedThisRun === 4) {
-      score += 1200 * (this.calculateLevel() + 1);
+      score += 800 * (this.calculateLevel() + 1);
     }
   }
 }
@@ -203,8 +200,8 @@ class Block {
 
     this.x = 3;
     this.y = 0;
-    // this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
-    this.currentBlock = block1;
+    this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
+    // this.currentBlock = block1;
 
     this.currentBlockGrid = createEmptyGrid();
   }
@@ -220,6 +217,9 @@ class Block {
 
     else if (this.currentBlock.length === 1) {
       this.currentBlock = [[1], [1], [1], [1]];
+      if (this.x < this.currentBlockGrid[0].length) {
+        this.x++;
+      }
     }
 
     else if (this.currentBlock.length === 3 && this.currentBlock[0].length === 2) {
@@ -231,6 +231,12 @@ class Block {
 
     else if (this.currentBlock.length === 4) {
       this.currentBlock = block1;
+      this.x--;
+    }
+
+    // make sure shape is not going outside of grid
+    while (this.x + this.currentBlock[0].length > this.currentBlockGrid[0].length) {
+      this.x--;
     }
 
     this.currentBlockGrid = createEmptyGrid();
