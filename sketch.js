@@ -2,8 +2,10 @@ let board;
 let cellSize;
 let tetris; 
 let buffer; 
-let waitTime = 0;
+let startTime = 0;
+let waitTime = 750;
 let score;
+let over = false;
 
 let block1 = [
   [1, 1, 1, 1]
@@ -49,6 +51,7 @@ function draw() {
   drawGrid();
   writeScore();
 
+  tetris.checkGameOver();
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
   // tetris.clearRowIfDone();
@@ -60,14 +63,17 @@ function draw() {
   else {
     tetris.autoMoveBlock();
   }
+
+  if (keyIsDown(40)) {
+    waitTime = 75;
+  }
+  else {
+    waitTime = 750;
+  }
 }
 
 function keyPressed() {
-  if (keyCode === DOWN_ARROW) {
-    tetris.newBlock.moveDown();
-  }
-
-  else if (keyCode === RIGHT_ARROW) {
+  if (keyCode === RIGHT_ARROW) {
     tetris.newBlock.moveRight();
   }
 
@@ -75,7 +81,7 @@ function keyPressed() {
     tetris.newBlock.moveLeft();
   }
 
-  else if (keyCode === 32) {
+  else if (keyCode === 32) { // space bar
     tetris.newBlock.hardDrop();
     // tetris.newBlock.addToMaster();
   }
@@ -108,11 +114,12 @@ function drawGrid() {
   }
   stroke("white");
   // strokeWeight(1);
-
+  
   line(buffer, 0, buffer, height);
   line(width - buffer, 0, width - buffer, height);
   line(buffer, 0, width-buffer, 0);
   line(buffer, height, width-buffer, height);
+
 }
 
 function writeScore() {
@@ -155,8 +162,8 @@ class Tetris {
   }
 
   autoMoveBlock() {
-    if (millis() > waitTime + 750) {
-      waitTime = millis();
+    if (millis() > startTime + waitTime) {
+      startTime = millis();
       this.newBlock.moveDown();
     }
   }
@@ -191,6 +198,20 @@ class Tetris {
     }
     else if (this.rowsClearedThisRun === 4) {
       score += 800 * (this.calculateLevel() + 1);
+    }
+  }
+
+  checkGameOver() {
+    if (this.newBlock.y === 0 && this.newBlock.checkVerticalCollision()) {
+      // show final block
+      this.fillBoard();
+      this.newBlock.fillGrid();
+
+      textAlign(CENTER, CENTER);
+      textSize(width/10);
+      fill("white");
+      text("Game Over!", width/2, height/2);
+      noLoop();
     }
   }
 }
