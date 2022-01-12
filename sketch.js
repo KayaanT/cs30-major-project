@@ -42,8 +42,8 @@ function setup() {
   buffer = width/2 - 10*cellSize/2; 
   
   // create empty grid to display and a new tetris game
-  board = createEmptyGrid();
   tetris = new Tetris();
+  board = createEmptyGrid();
   score = 0;
 }
 
@@ -64,6 +64,8 @@ function draw() {
   }
   else {
     tetris.autoMoveBlock();
+    tetris.ghostBlock.x = tetris.newBlock.x;
+    tetris.ghostBlock.hardDrop();
   }
 
   if (keyIsDown(40)) {
@@ -143,7 +145,9 @@ class Tetris {
   
   spawnNewBlock() {
     this.whichBlock();
-    this.newBlock = new Block(this.blockShape);
+    this.newBlock = new Block(this.blockShape, "real");
+    this.ghostBlock = new Block(this.blockShape, "ghost");
+    // this.ghostBlock.hardDrop();
   }
 
   whichBlock() {
@@ -242,7 +246,7 @@ class Tetris {
 }
 
 class Block {
-  constructor(blockShape) {
+  constructor(blockShape, realOrGhost) {
 
     this.x = 3;
     this.y = 0;
@@ -252,6 +256,10 @@ class Block {
 
     this.currentBlockGrid = createEmptyGrid();
     // this.ghostBlock = new Block();
+
+    // if (realOrGhost === "ghost") {
+    //   this.hardDrop();
+    // }
   }
 
   rotateBlock() {
@@ -394,5 +402,9 @@ class Block {
     while (this.y + this.currentBlock.length <= 19 && !this.checkBlockPlaced() && !this.checkVerticalCollision()) {
       this.moveDown();
     }
+  }
+
+  updateGhostBlock() {
+    return;
   }
 }
