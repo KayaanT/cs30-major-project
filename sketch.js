@@ -34,6 +34,7 @@ let block7 = [
   [7, 7, 0],
   [0, 7, 7]
 ];
+let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -54,6 +55,7 @@ function draw() {
   tetris.checkGameOver();
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
+  tetris.drawNextBlock();
   // tetris.clearRowIfDone();
 
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
@@ -129,6 +131,7 @@ function writeScore() {
   text("Score: " + score, width-buffer + width/25, height/10);
   text("Rows Cleared: " + tetris.totalRowsCleared, width-buffer + width/25, height/6);
   text("Multiplier Level: " + tetris.calculateLevel(), width-buffer + width/25, height/4.5);
+  text("Next Block:", width-buffer + width/25, height/3);
 }
 
 class Tetris {
@@ -137,14 +140,24 @@ class Tetris {
     this.spawnNewBlock();
     this.totalRowsCleared = 0;
   }
-
+  
   spawnNewBlock() {
-    this.newBlock = new Block();
+    this.whichBlock();
+    this.newBlock = new Block(this.blockShape);
+  }
+
+  whichBlock() {
+    if (this.nextBlock) {
+      this.blockShape = this.nextBlock;
+    }
+    else {
+      this.blockShape = random([block1, block2, block3, block4, block5, block6, block7]);
+    }
+    this.nextBlock = random([block1, block2, block3, block4, block5, block6, block7]);
   }
 
   fillBoard() {
     // noStroke();
-    let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
         if (this.newBlock.currentBlockGrid[y][x] > 0) {
@@ -210,21 +223,35 @@ class Tetris {
       textAlign(CENTER, CENTER);
       textSize(width/10);
       fill("white");
+      // clear();
       text("Game Over!", width/2, height/2);
       noLoop();
+    }
+  }
+
+  drawNextBlock() {
+    for (let y = 0; y < this.nextBlock.length; y++) {
+      for (let x = 0; x < this.nextBlock[y].length; x++) {
+        if (this.nextBlock[y][x] > 0) {
+          fill(colors[this.nextBlock[y][x]-1]);
+          rect(x*cellSize+width-buffer + width/22, y*cellSize+height/2.7, cellSize, cellSize);
+        }
+      }
     }
   }
 }
 
 class Block {
-  constructor() {
+  constructor(blockShape) {
 
     this.x = 3;
     this.y = 0;
-    this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
+    // this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
     // this.currentBlock = block1;
+    this.currentBlock = blockShape;
 
     this.currentBlockGrid = createEmptyGrid();
+    // this.ghostBlock = new Block();
   }
 
   rotateBlock() {
