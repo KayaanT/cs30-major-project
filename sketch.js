@@ -48,7 +48,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(50);
   drawGrid();
   writeScore();
 
@@ -56,16 +56,16 @@ function draw() {
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
   tetris.drawNextBlock();
-  // tetris.clearRowIfDone();
 
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
     tetris.clearRowIfDone();
   }
+
   else {
     tetris.autoMoveBlock();
-    tetris.ghostBlock.x = tetris.newBlock.x;
-    tetris.ghostBlock.hardDrop();
+    tetris.ghostBlock.updateGhostBlock();
+    tetris.ghostBlock.showGhostBlock();
   }
 
   if (keyIsDown(40)) {
@@ -87,7 +87,6 @@ function keyPressed() {
 
   else if (keyCode === 32) { // space bar
     tetris.newBlock.hardDrop();
-    // tetris.newBlock.addToMaster();
   }
 
   else if (keyCode === UP_ARROW) {
@@ -111,13 +110,10 @@ function drawGrid() {
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
       noFill();
-      // strokeWeight(0.05);
-      // stroke("grey");
       rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
     }
   }
   stroke("white");
-  // strokeWeight(1);
   
   line(buffer, 0, buffer, height);
   line(width - buffer, 0, width - buffer, height);
@@ -128,7 +124,8 @@ function drawGrid() {
 
 function writeScore() {
   fill("white");
-  textSize(height/25);
+  strokeWeight(0.1)
+  textSize(width/45);
 
   text("Score: " + score, width-buffer + width/25, height/10);
   text("Rows Cleared: " + tetris.totalRowsCleared, width-buffer + width/25, height/6);
@@ -145,9 +142,8 @@ class Tetris {
   
   spawnNewBlock() {
     this.whichBlock();
-    this.newBlock = new Block(this.blockShape, "real");
-    this.ghostBlock = new Block(this.blockShape, "ghost");
-    // this.ghostBlock.hardDrop();
+    this.newBlock = new Block(this.blockShape);
+    this.ghostBlock = new Block(this.blockShape);
   }
 
   whichBlock() {
@@ -161,7 +157,6 @@ class Tetris {
   }
 
   fillBoard() {
-    // noStroke();
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
         if (this.newBlock.currentBlockGrid[y][x] > 0) {
@@ -192,18 +187,16 @@ class Tetris {
   clearRowIfDone() {
     this.rowsClearedThisRun = 0;
     for (let i = 0; i < this.masterGrid.length; i++) {
-      // for (let j = 0; j < this.masterGrid[i].length; j++) {}
       if (!this.masterGrid[i].includes(0)) {
-        
         this.newGrid = this.masterGrid;
         this.newGrid.splice(i, 1);
         this.newGrid.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         this.masterGrid = this.newGrid;
         this.rowsClearedThisRun++;
         this.totalRowsCleared++;
-
       }
     }
+
     if (this.rowsClearedThisRun === 1) {
       score += 100 * (this.calculateLevel() + 1);
     }
@@ -246,20 +239,12 @@ class Tetris {
 }
 
 class Block {
-  constructor(blockShape, realOrGhost) {
-
+  constructor(blockShape) {
     this.x = 3;
     this.y = 0;
-    // this.currentBlock = random([block1, block2, block3, block4, block5, block6, block7]);
-    // this.currentBlock = block1;
+
     this.currentBlock = blockShape;
-
     this.currentBlockGrid = createEmptyGrid();
-    // this.ghostBlock = new Block();
-
-    // if (realOrGhost === "ghost") {
-    //   this.hardDrop();
-    // }
   }
 
   rotateBlock() {
@@ -288,6 +273,9 @@ class Block {
     else if (this.currentBlock.length === 4) {
       this.currentBlock = block1;
       this.x--;
+      if (this.x < 0) {
+        this.x++;
+      }
     }
 
     // make sure shape is not going outside of grid
@@ -310,7 +298,6 @@ class Block {
 
   moveDown() {
     if (!this.checkBlockPlaced()) {
-      // return;
       for (let i = 0; i < this.currentBlock[0].length; i++) {
         this.currentBlockGrid[this.y][this.x+i] = 0;
       }
@@ -354,6 +341,7 @@ class Block {
     if (this.x <= 0) {
       return true;
     }
+
     for (let i = 0; i < this.currentBlock.length; i++) {
       for (let j = 0; j < this.currentBlock[i].length; j++) {
         if (this.currentBlock[i][j] > 0 && tetris.masterGrid[this.y+i][this.x+j-1] > 0) {
@@ -387,7 +375,6 @@ class Block {
   }
 
   checkVerticalCollision() {
-    // return;
     for (let i = 0; i < this.currentBlock.length; i++) {
       for (let j = 0; j < this.currentBlock[i].length; j++) {
         if (tetris.masterGrid[this.y+i+1][this.x+j] > 0 && this.currentBlock[i][j] > 0) {
@@ -405,6 +392,20 @@ class Block {
   }
 
   updateGhostBlock() {
-    return;
+    this.currentBlock = tetris.newBlock.currentBlock;
+    this.x = tetris.newBlock.x;
+    this.y = tetris.newBlock.y;
+    this.hardDrop();
+  }
+
+  showGhostBlock() {
+    for (let y = 0; y < this.currentBlock.length; y++) {
+      for (let x = 0; x < this.currentBlock[y].length; x++) {
+        if (this.currentBlock[y][x] > 0) {
+          fill(color(200, 100));
+          rect(x*cellSize+this.x*cellSize+buffer, y*cellSize+this.y*cellSize, cellSize, cellSize);
+        }
+      }
+    }
   }
 }
