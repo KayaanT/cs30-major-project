@@ -61,6 +61,7 @@ function draw() {
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
     tetris.clearRowIfDone();
+    tetris.spawnNewBlock();
   }
 
   else {
@@ -242,7 +243,7 @@ class Tetris {
       textAlign(CENTER, CENTER);
       textSize(width/10);
       fill("white");
-      // clear();
+      this.masterGrid = createEmptyGrid();
       text("Game Over!", width/2, height/2);
       noLoop();
     }
@@ -332,7 +333,6 @@ class Block {
     for (let j = 0; j < this.currentBlock.length; j++) {
       for (let i = 0; i < this.currentBlock[j].length; i++) {
         this.currentBlockGrid[this.y+j][this.x+i] = this.currentBlock[j][i];
-        console.log();
       }
     }
   }
@@ -368,6 +368,7 @@ class Block {
     if (this.x + this.currentBlock[0].length >= 10) {
       return true;
     }
+
     for (let i = 0; i < this.currentBlock.length; i++) {
       for (let j = this.currentBlock[i].length; j > 0; j--) {
         if (this.currentBlock[i][j] > 0 && tetris.masterGrid[this.y + i][this.x+j+1] > 0) {
@@ -401,7 +402,6 @@ class Block {
         }
       }
     }
-    tetris.spawnNewBlock();
   }
   
   checkBlockPlaced() {
@@ -430,7 +430,7 @@ class Block {
     while (this.y + this.currentBlock.length <= 19 && !this.checkBlockPlaced() && !this.checkVerticalCollision()) {
       this.moveDown();
     }
-  }
+  } 
 
   updateGhostBlock() {
     this.currentBlock = tetris.newBlock.currentBlock;
