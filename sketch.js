@@ -56,6 +56,7 @@ function draw() {
   tetris.fillBoard();
   tetris.newBlock.fillGrid();
   tetris.drawNextBlock();
+  tetris.drawHoldQueue();
 
   if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
     tetris.newBlock.addToMaster();
@@ -92,6 +93,9 @@ function keyPressed() {
   else if (keyCode === UP_ARROW) {
     tetris.newBlock.rotateBlock();
   }
+  else if (keyCode === 67) { // c
+    tetris.holdQueue();
+  }
 }
 
 function createEmptyGrid() {
@@ -124,7 +128,7 @@ function drawGrid() {
 
 function writeScore() {
   fill("white");
-  strokeWeight(0.1)
+  strokeWeight(0.1);
   textSize(width/45);
 
   text("Score: " + score, width-buffer + width/25, height/10);
@@ -138,12 +142,30 @@ class Tetris {
     this.masterGrid = createEmptyGrid();
     this.spawnNewBlock();
     this.totalRowsCleared = 0;
+    this.heldBlock = false;
   }
   
   spawnNewBlock() {
     this.whichBlock();
     this.newBlock = new Block(this.blockShape);
     this.ghostBlock = new Block(this.blockShape);
+  }
+
+  holdQueue() {
+    if (this.heldBlock) {
+      this.heldBlock.x = 3;
+      this.heldBlock.y = 0;
+      this.tempBlock = this.newBlock;
+      this.newBlock = this.heldBlock;
+      this.heldBlock = this.tempBlock;
+    
+    }
+    else {
+      this.heldBlock = this.newBlock;
+      this.heldBlock.x = 3;
+      this.heldBlock.y = 0;
+      this.spawnNewBlock();
+    }
   }
 
   whichBlock() {
@@ -236,6 +258,23 @@ class Tetris {
       }
     }
   }
+
+  drawHoldQueue() {
+    fill("white");
+    textSize(width/45);
+    text("Held:", width/5, height/6);
+
+    if (this.heldBlock) {
+      for (let y = 0; y < this.heldBlock.currentBlock.length; y++) {
+        for (let x = 0; x < this.heldBlock.currentBlock[y].length; x++) {
+          if (this.heldBlock.currentBlock[y][x] > 0) {
+            fill(colors[this.heldBlock.currentBlock[y][x]-1]);
+            rect(x*cellSize + width/5, y*cellSize+height/4.5, cellSize, cellSize);
+          }
+        }
+      }
+    }
+  }
 }
 
 class Block {
@@ -288,6 +327,8 @@ class Block {
 
 
   fillGrid() {
+    this.currentBlockGrid = createEmptyGrid();
+
     for (let j = 0; j < this.currentBlock.length; j++) {
       for (let i = 0; i < this.currentBlock[j].length; i++) {
         this.currentBlockGrid[this.y+j][this.x+i] = this.currentBlock[j][i];
