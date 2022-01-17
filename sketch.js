@@ -6,6 +6,10 @@ let startTime = 0;
 let waitTime = 750;
 let score;
 let over = false;
+let backgroundMusic;
+let gameStarted = false;
+let gamePaused = false;
+let pauseIcon;
 
 let block1 = [
   [1, 1, 1, 1]
@@ -36,6 +40,11 @@ let block7 = [
 ];
 let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
 
+function preload() {
+  backgroundMusic = loadSound("assets/tetris-theme.mp3");
+  pauseIcon = loadImage("assets/pause.png");
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   cellSize = height/20;
@@ -49,32 +58,61 @@ function setup() {
 
 function draw() {
   background(50);
-  drawGrid();
-  writeScore();
+  
+  if (gameStarted && !gamePaused) {
+    image(pauseIcon, width/5, height/25, width/25, width/25);
+    if (!backgroundMusic.isPlaying()) {
+      backgroundMusic.play();
+    }
 
-  tetris.checkGameOver();
-  tetris.fillBoard();
-  tetris.newBlock.fillGrid();
-  tetris.drawNextBlock();
-  tetris.drawHoldQueue();
-
-  if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
-    tetris.newBlock.addToMaster();
-    tetris.clearRowIfDone();
-    tetris.spawnNewBlock();
+    drawGrid();
+    writeScore();
+  
+    tetris.checkGameOver();
+    tetris.fillBoard();
+    tetris.newBlock.fillGrid();
+    tetris.drawNextBlock();
+    tetris.drawHoldQueue();
+  
+    if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
+      tetris.newBlock.addToMaster();
+      tetris.clearRowIfDone();
+      tetris.spawnNewBlock();
+    }
+  
+    else {
+      tetris.autoMoveBlock();
+      tetris.ghostBlock.updateGhostBlock();
+      tetris.ghostBlock.showGhostBlock();
+    }
+  
+    if (keyIsDown(40)) {
+      waitTime = 75;
+    }
+    else {
+      waitTime = 750;
+    }
   }
-
+  else if (gamePaused) {
+    pauseScreen();
+  }
   else {
-    tetris.autoMoveBlock();
-    tetris.ghostBlock.updateGhostBlock();
-    tetris.ghostBlock.showGhostBlock();
+    writeIntro();
   }
+}
 
-  if (keyIsDown(40)) {
-    waitTime = 75;
+function mouseClicked() {
+  if (!gameStarted) {
+    gameStarted = true;
+    backgroundMusic.play();
   }
-  else {
-    waitTime = 750;
+  else if (!gamePaused) {
+    gamePaused = true;
+    backgroundMusic.pause();
+  }
+  else if (gamePaused) {
+    gamePaused = false;
+    backgroundMusic.play();
   }
 }
 
@@ -136,6 +174,26 @@ function writeScore() {
   text("Rows Cleared: " + tetris.totalRowsCleared, width-buffer + width/25, height/6);
   text("Multiplier Level: " + tetris.calculateLevel(), width-buffer + width/25, height/4.5);
   text("Next Block:", width-buffer + width/25, height/3);
+}
+
+function writeIntro() {
+  fill("white");
+  textSize(width/25);
+  textAlign(CENTER, CENTER);
+  text("Welcome to Tetris", width/2, height/3);
+  textSize(width/50);
+  text("Click anywhere to play", width/2, height/3*1.3);
+  textAlign(LEFT);
+}
+
+function pauseScreen() {
+  fill("white");
+  textSize(width/25);
+  textAlign(CENTER, CENTER);
+  text("Game Paused", width/2, height/3);
+  textSize(width/50);
+  text("Click anywhere to resume", width/2, height/3*1.3);
+  textAlign(LEFT);
 }
 
 class Tetris {
@@ -245,6 +303,7 @@ class Tetris {
       fill("white");
       this.masterGrid = createEmptyGrid();
       text("Game Over!", width/2, height/2);
+      backgroundMusic.stop();
       noLoop();
     }
   }
@@ -263,7 +322,7 @@ class Tetris {
   drawHoldQueue() {
     fill("white");
     textSize(width/45);
-    text("Held:", width/5, height/6);
+    text("Held (c):", width/5, height/6);
 
     if (this.heldBlock) {
       for (let y = 0; y < this.heldBlock.currentBlock.length; y++) {
