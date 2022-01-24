@@ -1,3 +1,4 @@
+// global variables
 let board;
 let cellSize;
 let tetris; 
@@ -6,42 +7,44 @@ let startTime = 0;
 let waitTime = 750;
 let score;
 let over = false;
-let backgroundMusic;
+let backgroundMusic, rowClearedSound;
 let gameStarted = false;
 let gamePaused = false;
 let pauseIcon;
+let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"]; // official colors in order of tetris blocks
 
-let block1 = [
+let block1 = [ // i block
   [1, 1, 1, 1]
 ];
-let block2 = [
+let block2 = [ // j block
   [2, 0, 0],
   [2, 2, 2],
 ];
-let block3 = [
+let block3 = [ // l block
   [0, 0, 3],
   [3, 3, 3]
 ];
-let block4 = [
+let block4 = [ // o block
   [4, 4],
   [4, 4]
 ];    
-let block5 = [
+let block5 = [ // s block
   [0, 5, 5],
   [5, 5, 0]
 ];    
-let block6 = [
+let block6 = [ // t block
   [0, 6, 0],
   [6, 6, 6] 
 ];    
-let block7 = [
+let block7 = [ // z block
   [7, 7, 0],
   [0, 7, 7]
 ];
-let colors = ["lightblue", "blue", "orange", "yellow", "lightgreen", "purple", "red"];
 
 function preload() {
   backgroundMusic = loadSound("assets/tetris-theme.mp3");
+  backgroundMusic.setVolume(0.4);
+  rowClearedSound = loadSound("assets/row-clear.mp3");
   pauseIcon = loadImage("assets/pause.png");
 }
 
@@ -57,23 +60,27 @@ function setup() {
 }
 
 function draw() {
-  background(50);
+  background(50); 
   
+  // main loop to execute when game is in progress
   if (gameStarted && !gamePaused) {
     image(pauseIcon, width/5, height/25, width/25, width/25);
+
+    // play background music if it hasn't started or has ended
     if (!backgroundMusic.isPlaying()) {
       backgroundMusic.play();
     }
 
+    // call functions
     drawGrid();
     writeScore();
-  
     tetris.checkGameOver();
     tetris.fillBoard();
     tetris.newBlock.fillGrid();
     tetris.drawNextBlock();
     tetris.drawHoldQueue();
-  
+    
+    // spawn new block if no more moves
     if (tetris.newBlock.checkBlockPlaced() || tetris.newBlock.checkVerticalCollision()) {
       tetris.newBlock.addToMaster();
       tetris.clearRowIfDone();
@@ -81,27 +88,32 @@ function draw() {
     }
   
     else {
+      // move block down and update the ghost block
       tetris.autoMoveBlock();
       tetris.ghostBlock.updateGhostBlock();
       tetris.ghostBlock.showGhostBlock();
     }
-  
-    if (keyIsDown(40)) {
+    
+    // for soft drop - if down arrow is being pressed, reduce the time it takes for block to move down
+    if (keyIsDown(40)) { 
       waitTime = 75;
     }
     else {
       waitTime = 750;
     }
   }
+
   else if (gamePaused) {
     pauseScreen();
   }
+
   else {
     writeIntro();
   }
 }
 
 function mouseClicked() {
+  // switch state variables to display relevant screen (intro, pause, or game)
   if (!gameStarted) {
     gameStarted = true;
     backgroundMusic.play();
@@ -117,18 +129,16 @@ function mouseClicked() {
 }
 
 function keyPressed() {
+  // perform action depending on which key is pressed, pretty self explanatory based on function names
   if (keyCode === RIGHT_ARROW) {
     tetris.newBlock.moveRight();
   }
-
   else if (keyCode === LEFT_ARROW) {
     tetris.newBlock.moveLeft();
   }
-
   else if (keyCode === 32) { // space bar
     tetris.newBlock.hardDrop();
   }
-
   else if (keyCode === UP_ARROW) {
     tetris.newBlock.rotateBlock();
   }
@@ -138,6 +148,7 @@ function keyPressed() {
 }
 
 function createEmptyGrid() {
+  // function to return a 10x20 array filled with 0s
   let board = [];
   for (let i = 0; i < 20; i++) {
     board.push([]);
@@ -158,6 +169,7 @@ function drawGrid() {
   }
   stroke("white");
   
+  // draw borders around the grid
   line(buffer, 0, buffer, height);
   line(width - buffer, 0, width - buffer, height);
   line(buffer, 0, width-buffer, 0);
@@ -166,6 +178,7 @@ function drawGrid() {
 }
 
 function writeScore() {
+  // write the current score as well as the number of rows cleared and the level to the screen
   fill("white");
   strokeWeight(0.1);
   textSize(width/45);
@@ -177,26 +190,34 @@ function writeScore() {
 }
 
 function writeIntro() {
+  // display welcome screen with unstruction
   fill("white");
   textSize(width/25);
   textAlign(CENTER, CENTER);
   text("Welcome to Tetris", width/2, height/3);
   textSize(width/50);
   text("Click anywhere to play", width/2, height/3*1.3);
+  text("Instructions:\n UP - Rotate block \n LEFT/RIGHT - Move block left and right \n DOWN - Soft drop block \n SPACE - Hard drop block \n C - Hold current block",  width/2, height/3*2);
+
   textAlign(LEFT);
 }
 
 function pauseScreen() {
+  // display pause screen
   fill("white");
   textSize(width/25);
   textAlign(CENTER, CENTER);
   text("Game Paused", width/2, height/3);
   textSize(width/50);
   text("Click anywhere to resume", width/2, height/3*1.3);
+  text("Instructions:\n UP - Rotate block \n LEFT/RIGHT - Move block left and right \n DOWN - Soft drop block \n SPACE - Hard drop block \n C - Hold current block",  width/2, height/3*2);
   textAlign(LEFT);
 }
 
 class Tetris {
+  // this tetris object contains the grid of the current state of the game
+  // it also includes functions that are not specific to the current block, but rather the whole game
+  // it also stores the current block
   constructor() {
     this.masterGrid = createEmptyGrid();
     this.spawnNewBlock();
@@ -204,8 +225,9 @@ class Tetris {
     this.heldBlock = false;
   }
   
+  // creates a new block and ghost block object
   spawnNewBlock() {
-    this.whichBlock();
+    this.whichBlock(); // decide what block shape to spawn
     this.newBlock = new Block(this.blockShape);
     this.ghostBlock = new Block(this.blockShape);
   }
@@ -219,6 +241,7 @@ class Tetris {
       this.heldBlock = this.tempBlock;
     
     }
+
     else {
       this.heldBlock = this.newBlock;
       this.heldBlock.x = 3;
@@ -231,9 +254,11 @@ class Tetris {
     if (this.nextBlock) {
       this.blockShape = this.nextBlock;
     }
+
     else {
       this.blockShape = random([block1, block2, block3, block4, block5, block6, block7]);
     }
+
     this.nextBlock = random([block1, block2, block3, block4, block5, block6, block7]);
   }
 
@@ -245,6 +270,7 @@ class Tetris {
           fill(colors[this.newBlock.currentBlockGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
         }
+
         else if (this.masterGrid[y][x] > 0) {
           fill(colors[this.masterGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
@@ -275,6 +301,7 @@ class Tetris {
         this.masterGrid = this.newGrid;
         this.rowsClearedThisRun++;
         this.totalRowsCleared++;
+        rowClearedSound.play();
       }
     }
 
@@ -393,7 +420,7 @@ class Block {
       for (let i = 0; i < this.currentBlock[j].length; i++) {
         this.currentBlockGrid[this.y+j][this.x+i] = this.currentBlock[j][i];
       }
-    }
+    } 
   }
 
   moveDown() {
