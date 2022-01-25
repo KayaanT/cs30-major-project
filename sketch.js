@@ -233,6 +233,7 @@ class Tetris {
   }
 
   holdQueue() {
+    // if there is a block held, swap it with the current block and reset position to top
     if (this.heldBlock) {
       this.heldBlock.x = 3;
       this.heldBlock.y = 0;
@@ -241,7 +242,7 @@ class Tetris {
       this.heldBlock = this.tempBlock;
     
     }
-
+    // if not then hold current block
     else {
       this.heldBlock = this.newBlock;
       this.heldBlock.x = 3;
@@ -251,26 +252,27 @@ class Tetris {
   }
 
   whichBlock() {
+    // if next block is chosen, set it to current block
     if (this.nextBlock) {
       this.blockShape = this.nextBlock;
     }
-
+    // if not then choose one at random
     else {
       this.blockShape = random([block1, block2, block3, block4, block5, block6, block7]);
     }
 
+    // decide next block
     this.nextBlock = random([block1, block2, block3, block4, block5, block6, block7]);
   }
 
   fillBoard() {
     for (let y = 0; y < this.masterGrid.length; y++) {
       for (let x = 0; x < this.masterGrid[y].length; x++) {
+        // if something in current grid or master grid, fill with the color the current block is supposed to be
         if (this.newBlock.currentBlockGrid[y][x] > 0) {
-          // fill with the color the current block is supposed to be
           fill(colors[this.newBlock.currentBlockGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
         }
-
         else if (this.masterGrid[y][x] > 0) {
           fill(colors[this.masterGrid[y][x]-1]);
           rect(x*cellSize+buffer, y*cellSize, cellSize, cellSize);
@@ -281,6 +283,7 @@ class Tetris {
   }
 
   autoMoveBlock() {
+    // move block down every time waitTime has elapsed
     if (millis() > startTime + waitTime) {
       startTime = millis();
       this.newBlock.moveDown();
@@ -292,8 +295,10 @@ class Tetris {
   }
 
   clearRowIfDone() {
-    this.rowsClearedThisRun = 0;
+    this.rowsClearedThisRun = 0; // counter which will help with scoring multiplier
+
     for (let i = 0; i < this.masterGrid.length; i++) {
+      // if row if full, remove it and add a blank row to the top
       if (!this.masterGrid[i].includes(0)) {
         this.newGrid = this.masterGrid;
         this.newGrid.splice(i, 1);
@@ -305,6 +310,7 @@ class Tetris {
       }
     }
 
+    // award points thee same way as awarded in real tetris
     if (this.rowsClearedThisRun === 1) {
       score += 100 * (this.calculateLevel() + 1);
     }
@@ -325,6 +331,7 @@ class Tetris {
       this.fillBoard();
       this.newBlock.fillGrid();
 
+      // write game over on to screen
       textAlign(CENTER, CENTER);
       textSize(width/10);
       fill("white");
@@ -351,6 +358,7 @@ class Tetris {
     textSize(width/45);
     text("Held (c):", width/5, height/6);
 
+    // if block is held then display
     if (this.heldBlock) {
       for (let y = 0; y < this.heldBlock.currentBlock.length; y++) {
         for (let x = 0; x < this.heldBlock.currentBlock[y].length; x++) {
@@ -365,6 +373,8 @@ class Tetris {
 }
 
 class Block {
+  // this block object is the object which contains the current block shape 
+  // also has all the functions required to perform operations to a block
   constructor(blockShape) {
     this.x = 3;
     this.y = 0;
@@ -374,6 +384,8 @@ class Block {
   }
 
   rotateBlock() {
+
+    // 2x3 block grid
     if (this.currentBlock.length === 2 && this.currentBlock[0].length === 3) {
       this.currentBlock = [
         [this.currentBlock[1][0], this.currentBlock[0][0]],
@@ -382,6 +394,7 @@ class Block {
       ];
     }
 
+    // 1x4 block grid
     else if (this.currentBlock.length === 1) {
       this.currentBlock = [[1], [1], [1], [1]];
       if (this.x < this.currentBlockGrid[0].length) {
@@ -389,6 +402,7 @@ class Block {
       }
     }
 
+    // 3x2 block grid
     else if (this.currentBlock.length === 3 && this.currentBlock[0].length === 2) {
       this.currentBlock = [
         [this.currentBlock[2][0], this.currentBlock[1][0], this.currentBlock[0][0]],
@@ -396,6 +410,7 @@ class Block {
       ];
     }
 
+    // 4x1 block grid
     else if (this.currentBlock.length === 4) {
       this.currentBlock = block1;
       this.x--;
@@ -409,11 +424,12 @@ class Block {
       this.x--;
     }
 
-    this.currentBlockGrid = createEmptyGrid();
+    this.currentBlockGrid = createEmptyGrid(); // remove old values from the grid
   }
 
 
   fillGrid() {
+    // fill currentBlockGrid based on currentBlock
     this.currentBlockGrid = createEmptyGrid();
 
     for (let j = 0; j < this.currentBlock.length; j++) {
@@ -424,6 +440,7 @@ class Block {
   }
 
   moveDown() {
+    // increase y value by 1 if legal
     if (!this.checkBlockPlaced()) {
       for (let i = 0; i < this.currentBlock[0].length; i++) {
         this.currentBlockGrid[this.y][this.x+i] = 0;
@@ -433,6 +450,7 @@ class Block {
   }
 
   moveRight() {
+    // move x to the right if legal
     if (!this.checkRightCollision()) {
       for (let i = 0; i < this.currentBlock.length; i++) {
         this.currentBlockGrid[this.y+i][this.x] = 0;
@@ -442,6 +460,7 @@ class Block {
   }
 
   moveLeft() {
+    // move x to the left if legal
     if (!this.checkLeftCollision()) {
       for (let i = 0; i < this.currentBlock.length; i++) {
         this.currentBlockGrid[this.y+i][this.x+this.currentBlock[i].length-1] = 0;
@@ -451,6 +470,7 @@ class Block {
   }
 
   checkRightCollision() {
+    // check for collison on the right side
     if (this.x + this.currentBlock[0].length >= 10) {
       return true;
     }
@@ -466,6 +486,7 @@ class Block {
   }
 
   checkLeftCollision() {
+    // check for collision on the rigth side
     if (this.x <= 0) {
       return true;
     }
@@ -481,6 +502,7 @@ class Block {
   }
 
   addToMaster() {
+    // every value in the current grid that is not 0, add it to the master gris
     for (let i = 0; i < this.currentBlockGrid.length; i++) {
       for (let j = 0; j < this.currentBlockGrid[i].length; j++) {
         if (this.currentBlockGrid[i][j] > 0) {
@@ -502,6 +524,7 @@ class Block {
   }
 
   checkVerticalCollision() {
+    // check if something is colliding if y value were to increase by 1
     for (let i = 0; i < this.currentBlock.length; i++) {
       for (let j = 0; j < this.currentBlock[i].length; j++) {
         if (tetris.masterGrid[this.y+i+1][this.x+j] > 0 && this.currentBlock[i][j] > 0) {
@@ -513,12 +536,14 @@ class Block {
   }
 
   hardDrop() {
+    // move as far down as a block can go
     while (this.y + this.currentBlock.length <= 19 && !this.checkBlockPlaced() && !this.checkVerticalCollision()) {
       this.moveDown();
     }
   } 
 
   updateGhostBlock() {
+    // set to current block shape and coordinates, then hard drop
     this.currentBlock = tetris.newBlock.currentBlock;
     this.x = tetris.newBlock.x;
     this.y = tetris.newBlock.y;
@@ -526,6 +551,7 @@ class Block {
   }
 
   showGhostBlock() {
+    // display in gray
     for (let y = 0; y < this.currentBlock.length; y++) {
       for (let x = 0; x < this.currentBlock[y].length; x++) {
         if (this.currentBlock[y][x] > 0) {
